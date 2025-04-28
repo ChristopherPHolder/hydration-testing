@@ -1,11 +1,17 @@
-import { APP_INITIALIZER, ENVIRONMENT_INITIALIZER, mergeApplicationConfig } from '@angular/core';
+import { mergeApplicationConfig, provideAppInitializer, provideEnvironmentInitializer } from '@angular/core';
 import { provideServerRendering } from '@angular/platform-server';
 import { appConfig } from './app.config';
+import { RenderMode, provideServerRouting } from '@angular/ssr';
 
 export const serverConfig = mergeApplicationConfig(appConfig, {
   providers: [
     provideServerRendering(),
-    { provide: APP_INITIALIZER, useValue: () => console.log('Server App Initializer'), multi: true },
-    { provide: ENVIRONMENT_INITIALIZER, useValue: () => console.log('Server Environment Initializer'), multi: true },
+    provideServerRouting([{ path: '**', renderMode: RenderMode.Server }]),
+    provideAppInitializer(() => {
+      console.log('Server App Initializer');
+    }),
+    provideEnvironmentInitializer(() => {
+      console.log('Server Environment Initializer');
+    }),
   ]
 });

@@ -2,7 +2,6 @@ import { Component, input } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
 
 @Component({
-  standalone: true,
   selector: 'app-content',
   template: `
     <div class="content-box">
@@ -27,7 +26,6 @@ export class ContentComponent {
 }
 
 @Component({
-  standalone: true,
   selector: 'app-root',
   imports: [NgComponentOutlet, ContentComponent],
   template: `
