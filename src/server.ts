@@ -1,66 +1,65 @@
-import {
-  AngularNodeAppEngine,
-  createNodeRequestHandler,
-  isMainModule,
-  writeResponseToNodeResponse,
-} from '@angular/ssr/node';
+
+import { CommonEngine } from '@angular/ssr';
+
 import express from 'express';
-import { dirname, resolve } from 'node:path';
+import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import bootstrap from './main.server';
+import { APP_BASE_HREF } from '@angular/common';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 
-const app = express();
-const angularApp = new AngularNodeAppEngine();
+// The Express app is exported so that it can be used by serverless Functions.
+export function app(): express.Express {
+    const server = express();
+    const serverDistFolder = dirname(fileURLToPath(import.meta.url));
+    const browserDistFolder = resolve(serverDistFolder, '../browser');
+    const indexHtml = join(serverDistFolder, 'index.server.html');
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/**', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+    const commonEngine = new CommonEngine();
 
-/**
- * Serve static files from /browser
- */
-app.use(
-  express.static(browserDistFolder, {
-    maxAge: '1y',
-    index: false,
-    redirect: false,
-  }),
-);
+    server.set('view engine', 'html');
+    server.set('views', browserDistFolder);
 
-/**
- * Handle all other requests by rendering the Angular application.
- */
-app.use('/**', (req, res, next) => {
-  angularApp
-    .handle(req)
-    .then((response) =>
-      response ? writeResponseToNodeResponse(response, res) : next(),
-    )
-    .catch(next);
-});
+    // Example Express Rest API endpoints
+    // server.get('/api/**', (req, res) => { });
+    // Serve static files from /browser
+    server.get(
+        '**',
+        express.static(browserDistFolder, {
+            maxAge: '1y',
+            index: 'index.html',
+        }),
+    );
 
-/**
- * Start the server if this module is the main entry point.
- * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
- */
-if (isMainModule(import.meta.url)) {
-  const port = process.env['PORT'] || 4000;
-  app.listen(port, () => {
-    console.log(`Node Express server listening on http://localhost:${port}`);
-  });
+    // All regular routes use the Angular engine
+    server.get('**', (req, res, next) => {
+        const { protocol, originalUrl, baseUrl, headers } = req;
+
+        commonEngine
+            .render({
+                bootstrap,
+                documentFilePath: indexHtml,
+                url: `${protocol}://${headers.host}${originalUrl}`,
+                publicPath: browserDistFolder,
+                providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
+            })
+            .then((html) => res.send(html))
+            .catch((error) => next(error));
+    });
+
+    return server;
 }
 
-/**
- * The request handler used by the Angular CLI (dev-server and during build).
- */
-export const reqHandler = createNodeRequestHandler(app);
+function serve(): void {
+    const port = process.env['PORT'] || 4000;
+
+    // Start up the Node server
+    const server = app();
+    server.listen(port, () => {
+        console.info(`Node Express server listening on http://localhost:${port}`);
+    });
+}
+
+serve();
