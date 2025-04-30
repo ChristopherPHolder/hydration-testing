@@ -1,5 +1,7 @@
 import { Component, input } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
+import { logInRouteExploration } from './route-extraction';
 
 @Component({
   selector: 'app-content',
@@ -27,10 +29,11 @@ export class ContentComponent {
 
 @Component({
   selector: 'app-root',
-  imports: [NgComponentOutlet, ContentComponent],
+  imports: [NgComponentOutlet, ContentComponent, RouterOutlet],
   template: `
     <ng-container *ngComponentOutlet="contentComponent; inputs: dynamicComponentInput;"/>
     <app-content [text]="staticComponentInput.text" [title]="staticComponentInput.title"/>
+    <router-outlet />
   `,
 })
 export class AppComponent {
@@ -43,5 +46,9 @@ export class AppComponent {
   readonly staticComponentInput = {
     title: 'Static Component',
     text: 'This component is rendered with statically in the template. It does not have an ng-version attribute.',
+  }
+
+  constructor() {
+    logInRouteExploration('AppComponent');
   }
 }

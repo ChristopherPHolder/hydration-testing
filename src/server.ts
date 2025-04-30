@@ -37,12 +37,16 @@ app.use(
   }),
 );
 
+app.use(express.json({ limit: '50mb' }));
+
 /**
  * Handle all other requests by rendering the Angular application.
  */
 app.use('/**', (req, res, next) => {
+  console.log('Request', req.method, req.body);
+  req
   angularApp
-    .handle(req)
+    .handle(req, req.body)
     .then((response) =>
       response ? writeResponseToNodeResponse(response, res) : next(),
     )

@@ -1,24 +1,45 @@
 import {
+  DestroyRef,
   inject,
-  mergeApplicationConfig,
+  mergeApplicationConfig, PLATFORM_INITIALIZER,
   provideAppInitializer,
-  provideEnvironmentInitializer,
-  REQUEST
+  provideEnvironmentInitializer, providePlatformInitializer, REQUEST, REQUEST_CONTEXT
 } from '@angular/core';
 import { provideServerRendering } from '@angular/platform-server';
 import { appConfig } from './app.config';
-import { RenderMode, provideServerRouting } from '@angular/ssr';
+import { provideServerRouting, RenderMode } from '@angular/ssr';
+import { logInRouteExploration } from './route-extraction';
+
+function provideAppDestruction(callback: () => void) {
+  return provideAppInitializer(() => {
+    inject(DestroyRef).onDestroy(() => callback());
+  });
+}
 
 export const serverConfig = mergeApplicationConfig(appConfig, {
   providers: [
     provideServerRendering(),
-    provideServerRouting([{ path: 'help/**', renderMode: RenderMode.Server }]),
-    provideAppInitializer(() => {
-      const req = inject(REQUEST);
-      console.log('Server App Initializer', req);
+    provideServerRouting([
+      { path: '**', renderMode: RenderMode.Server }
+    ]),
+    // provideAppDestruction(() => {
+    //   console.log('******** Destruction **********');
+    // }),
+    // provideAppInitializer(() => {
+    //   // const req = inject(REQUEST);
+    //   // const context = inject(REQUEST_CONTEXT);
+    //   // console.log('WOLOLO', req, context);
+    //   logInRouteExploration('Server App Initializer');
+    // }),
+    // provideEnvironmentInitializer(() => {
+    //   logInRouteExploration('Server Environment Initializer');
+    // }),
+    providePlatformInitializer(() => {
+      console.log('Server Platform Initializer')
     }),
-    provideEnvironmentInitializer(() => {
-      console.log('Server Environment Initializer');
-    }),
+    { provide: PLATFORM_INITIALIZER, multi: true, useFactory: () => {
+        console.log('-----> Server Platform Initializer');
+      }
+    }
   ]
 });
