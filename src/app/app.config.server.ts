@@ -1,14 +1,7 @@
-import {
-  DestroyRef,
-  inject,
-  mergeApplicationConfig, PLATFORM_INITIALIZER,
-  provideAppInitializer,
-  provideEnvironmentInitializer, providePlatformInitializer, REQUEST, REQUEST_CONTEXT
-} from '@angular/core';
+import { DestroyRef, inject, mergeApplicationConfig, provideAppInitializer } from '@angular/core';
 import { provideServerRendering } from '@angular/platform-server';
 import { appConfig } from './app.config';
 import { provideServerRouting, RenderMode } from '@angular/ssr';
-import { logInRouteExploration } from './route-extraction';
 import { TEST_TOKEN } from '../token';
 
 function provideAppDestruction(callback: () => void) {
@@ -21,7 +14,7 @@ export const serverConfig = mergeApplicationConfig(appConfig, {
   providers: [
     provideServerRendering(),
     provideServerRouting([
-      { path: '**', renderMode: RenderMode.Server }
+      { path: 'WOLOLO', renderMode: RenderMode.Server }
     ]),
     // provideAppDestruction(() => {
     //   console.log('******** Destruction **********');

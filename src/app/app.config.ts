@@ -15,12 +15,12 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideClientHydration(withEventReplay()),
     provideRouter(routes),
-    // provideAppInitializer(() => {
-    //
-    //   logInRouteExploration('Client App Initializer');
-    // }),
-    // provideEnvironmentInitializer(() => {
-    //   logInRouteExploration('Client Environment Initializer');
-    // }),
+    provideAppInitializer(() => {
+
+      logInRouteExploration('Client App Initializer');
+    }),
+    provideEnvironmentInitializer(() => {
+      logInRouteExploration('Client Environment Initializer');
+    }),
   ]
 };
