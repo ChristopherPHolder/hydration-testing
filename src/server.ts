@@ -14,10 +14,14 @@ import { TEST_TOKEN } from './token';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
-// WTF
-// const indexHtml = join(serverDistFolder, 'index.server.html');
+const indexHtml = join(serverDistFolder, 'index.server.html');
 const app = express();
 
+const __filename = fileURLToPath(import.meta.url);
+globalThis.__filename = __filename;
+
+console.log('__filename', __filename);
+// const __dirname = dirname(__filename);
 /**
  * Example Express Rest API endpoints can be defined here.
  * Uncomment and define endpoints as necessary.
@@ -58,6 +62,7 @@ const DOC = `<!doctype html>
 const commonEngine = new CommonEngine();
 
 
+let isSSR = false;
 
 /**
  * Handle all other requests by rendering the Angular application.
@@ -67,6 +72,7 @@ app.use('/**', (req, res, next) => {
   const { protocol, originalUrl, baseUrl, headers } = req;
   console.log('EXPRESS REQUEST', req.body);
 
+  if (isSSR) {
     commonEngine
       .render({
         bootstrap,
@@ -81,8 +87,11 @@ app.use('/**', (req, res, next) => {
       })
       .then((html) => res.send(html))
       .catch((error) => next(error));
-
-
+  }
+  else {
+    isSSR = false;
+    res.send(DOC);
+  }
 
 });
 
