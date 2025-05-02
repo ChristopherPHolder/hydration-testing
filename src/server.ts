@@ -15,7 +15,7 @@ import { TEST_TOKEN } from './token';
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 // WTF
-const indexHtml = join(serverDistFolder, 'index.server.html');
+// const indexHtml = join(serverDistFolder, 'index.server.html');
 const app = express();
 
 /**
@@ -52,13 +52,12 @@ const DOC = `<!doctype html>
 </head>
 <body>
   <app-root></app-root>
-  <script src="polyfills.js" type="module"></script><script src="main.js" type="module"></script>
 </body>
 </html>
 `
 const commonEngine = new CommonEngine();
 
-console.info('[Express]: Creating Web Server');
+
 
 /**
  * Handle all other requests by rendering the Angular application.
@@ -70,7 +69,7 @@ app.use('/**', (req, res, next) => {
 
     commonEngine
       .render({
-        bootstrap: () => import('./main.server').then((m) => m.bootstrap()),
+        bootstrap: () => import('./main.server').then((m) => m.default()),
         document: DOC,
         url: `${protocol}://${headers.host}${originalUrl}`,
         publicPath: browserDistFolder,
@@ -82,6 +81,9 @@ app.use('/**', (req, res, next) => {
       })
       .then((html) => res.send(html))
       .catch((error) => next(error));
+
+
+
 });
 
 /**
