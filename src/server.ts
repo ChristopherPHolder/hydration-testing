@@ -69,7 +69,7 @@ app.use('/**', (req, res, next) => {
 
     commonEngine
       .render({
-        bootstrap: () => import('./main.server').then((m) => m.default()),
+        bootstrap,
         document: DOC,
         url: `${protocol}://${headers.host}${originalUrl}`,
         publicPath: browserDistFolder,
