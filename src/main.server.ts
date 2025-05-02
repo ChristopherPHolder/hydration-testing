@@ -1,7 +1,10 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { serverConfig } from './app/app.config.server';
+import { provideServerRendering } from '@angular/platform-server';
 
-const bootstrap = () => bootstrapApplication(AppComponent, serverConfig);
+export const bootstrap = () => bootstrapApplication(AppComponent, serverConfig);
 
-export default bootstrap;
+const subConfig = () => bootstrapApplication(AppComponent, { providers: [provideServerRendering(),]})
+
+export default subConfig;
