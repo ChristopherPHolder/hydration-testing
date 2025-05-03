@@ -1,8 +1,8 @@
 import {
-  ApplicationConfig, inject,
+  ApplicationConfig,
   provideAppInitializer,
   provideEnvironmentInitializer, providePlatformInitializer,
-  provideZoneChangeDetection, REQUEST_CONTEXT
+  provideZoneChangeDetection
 } from '@angular/core';
 
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
@@ -15,14 +15,13 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideClientHydration(withEventReplay()),
     provideRouter(routes),
-    provideAppInitializer(() => {
-      const context = inject(REQUEST_CONTEXT);
-      console.log('Client App Initializer', context);
-      // logInRouteExploration('Client App Initializer');
-    }),
-    provideEnvironmentInitializer(() => {
-      console.log('Client Env Initializer');
-    }),
+    // provideAppInitializer(() => {
+    //
+    //   logInRouteExploration('Client App Initializer');
+    // }),
+    // provideEnvironmentInitializer(() => {
+    //   logInRouteExploration('Client Environment Initializer');
+    // }),
     providePlatformInitializer(() => {
       console.log('Client Platform Initializer')
     })

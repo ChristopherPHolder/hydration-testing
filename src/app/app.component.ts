@@ -6,22 +6,17 @@ import { logInRouteExploration } from './route-extraction';
 @Component({
   selector: 'app-content',
   template: `
-    <div [class.content-box]="true" [class.client-color]="!isServer" [class.server-color]="isServer" >
+    <div class="content-box">
       <h1>{{title()}}</h1>
       <p>{{text()}}</p>
     </div>
   `,
   styles: [`
-    .server-color {
-      background-color: red;
-    }
-    .client-color {
-      background-color: green;
-    }
     .content-box {
       padding: 20px;
       margin: 10px;
       border-radius: 8px;
+      background-color: #f5f5f5;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       text-align: center;
     }
@@ -30,8 +25,6 @@ import { logInRouteExploration } from './route-extraction';
 export class ContentComponent {
   title = input.required<string>();
   text = input.required<string>();
-  protected readonly isServer = ngServerMode;
-  colorClass = this.isServer ? 'server-color' : 'client-color';
 }
 
 @Component({
@@ -39,14 +32,11 @@ export class ContentComponent {
   imports: [NgComponentOutlet, ContentComponent, RouterOutlet],
   template: `
     <ng-container *ngComponentOutlet="contentComponent; inputs: dynamicComponentInput;"/>
-    <app-content [text]="staticComponentInput.text" [title]="staticComponentInput.title" />
+    <app-content [text]="staticComponentInput.text" [title]="staticComponentInput.title"/>
     <router-outlet />
   `,
 })
 export class AppComponent {
-
-
-
   readonly contentComponent = ContentComponent;
 
   readonly dynamicComponentInput = {
@@ -59,7 +49,6 @@ export class AppComponent {
   }
 
   constructor() {
-    console.log('AppComponent');
     logInRouteExploration('AppComponent');
   }
 }
