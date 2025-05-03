@@ -22,8 +22,5 @@ export const appConfig: ApplicationConfig = {
     // provideEnvironmentInitializer(() => {
     //   logInRouteExploration('Client Environment Initializer');
     // }),
-    providePlatformInitializer(() => {
-      console.log('Client Platform Initializer')
-    })
   ]
 };
