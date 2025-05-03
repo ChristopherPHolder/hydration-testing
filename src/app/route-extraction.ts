@@ -1,15 +1,14 @@
-import { inject, REQUEST } from '@angular/core';
-import { TEST_TOKEN } from '../token';
+import { inject, PLATFORM_ID, REQUEST } from '@angular/core';
+import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 
 export const isRouteExploration = () => inject(REQUEST) === null;
 
 export const logInRouteExploration = (message: string) => {
-  return;
-  const testTOKEN = inject(TEST_TOKEN);
   if (isRouteExploration()) {
-    console.log('[Route Exploration]:', message, testTOKEN);
+    const p = inject(PLATFORM_ID);
+    console.log('[Route Exploration]:', message);
   }
   else {
-    console.log('[SSR Render]', message, testTOKEN);
+    console.log('[SSR Render]', message);
   }
 }

@@ -1,27 +1,19 @@
 import {
-  CommonEngine,
+  AngularNodeAppEngine,
   createNodeRequestHandler,
   isMainModule,
+  writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
-import { dirname, resolve, join } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import bootstrap from './main.server';
-import { APP_BASE_HREF } from '@angular/common';
-
-import 'zone.js';
-import { TEST_TOKEN } from './token';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
-const indexHtml = join(serverDistFolder, 'index.server.html');
+
 const app = express();
+const angularApp = new AngularNodeAppEngine();
 
-const __filename = fileURLToPath(import.meta.url);
-globalThis.__filename = __filename;
-
-console.log('__filename', __filename);
-// const __dirname = dirname(__filename);
 /**
  * Example Express Rest API endpoints can be defined here.
  * Uncomment and define endpoints as necessary.
@@ -45,54 +37,20 @@ app.use(
   }),
 );
 
-const DOC = `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>SsrSetup</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <app-root></app-root>
-</body>
-</html>
-`
-const commonEngine = new CommonEngine();
-
-
-let isSSR = false;
+app.use(express.json({ limit: '50mb' }));
 
 /**
  * Handle all other requests by rendering the Angular application.
  */
 app.use('/**', (req, res, next) => {
-
-  const { protocol, originalUrl, baseUrl, headers } = req;
-  console.log('EXPRESS REQUEST', req.body);
-
-  if (isSSR) {
-    commonEngine
-      .render({
-        bootstrap,
-        document: DOC,
-        url: `${protocol}://${headers.host}${originalUrl}`,
-        publicPath: browserDistFolder,
-        providers: [
-          { provide: APP_BASE_HREF, useValue: baseUrl },
-          { provide: TEST_TOKEN, useValue: 1 },
-        ],
-
-      })
-      .then((html) => res.send(html))
-      .catch((error) => next(error));
-  }
-  else {
-    isSSR = false;
-    res.send(DOC);
-  }
-
+  console.log('Request', req.method, req.body);
+  req
+  angularApp
+    .handle(req, req.body)
+    .then((response) =>
+      response ? writeResponseToNodeResponse(response, res) : next(),
+    )
+    .catch(next);
 });
 
 /**

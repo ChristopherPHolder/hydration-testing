@@ -9,7 +9,6 @@ import { provideServerRendering } from '@angular/platform-server';
 import { appConfig } from './app.config';
 import { provideServerRouting, RenderMode } from '@angular/ssr';
 import { logInRouteExploration } from './route-extraction';
-import { TEST_TOKEN } from '../token';
 
 function provideAppDestruction(callback: () => void) {
   return provideAppInitializer(() => {
@@ -26,11 +25,6 @@ export const serverConfig = mergeApplicationConfig(appConfig, {
     // provideAppDestruction(() => {
     //   console.log('******** Destruction **********');
     // }),
-    provideAppInitializer(() => {
-      const testTOKEN = inject(TEST_TOKEN);
-      console.log('TEST TOKEN', testTOKEN);
-    })
-
     // provideAppInitializer(() => {
     //   // const req = inject(REQUEST);
     //   // const context = inject(REQUEST_CONTEXT);
@@ -40,5 +34,12 @@ export const serverConfig = mergeApplicationConfig(appConfig, {
     // provideEnvironmentInitializer(() => {
     //   logInRouteExploration('Server Environment Initializer');
     // }),
+    providePlatformInitializer(() => {
+      console.log('Server Platform Initializer')
+    }),
+    { provide: PLATFORM_INITIALIZER, multi: true, useFactory: () => {
+        console.log('-----> Server Platform Initializer');
+      }
+    }
   ]
 });
