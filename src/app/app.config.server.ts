@@ -1,45 +1,30 @@
-import {
-  DestroyRef,
-  inject,
-  mergeApplicationConfig, PLATFORM_INITIALIZER,
-  provideAppInitializer,
-  provideEnvironmentInitializer, providePlatformInitializer, REQUEST, REQUEST_CONTEXT
-} from '@angular/core';
+import { inject, mergeApplicationConfig, provideEnvironmentInitializer, REQUEST_CONTEXT, } from '@angular/core';
 import { provideServerRendering } from '@angular/platform-server';
 import { appConfig } from './app.config';
 import { provideServerRouting, RenderMode } from '@angular/ssr';
-import { logInRouteExploration } from './route-extraction';
+import { ROUTES } from '@angular/router';
+import { REQUEST_EXPLORATION } from './request-exploration';
+import { routes } from './routes';
 
-function provideAppDestruction(callback: () => void) {
-  return provideAppInitializer(() => {
-    inject(DestroyRef).onDestroy(() => callback());
-  });
+const preClientConfig = {
+  providers: [
+    provideEnvironmentInitializer(() => {
+      const requestContext = inject(REQUEST_CONTEXT);
+      console.log('preClientConfig', requestContext);
+    }),
+  ]
+};
+
+const postClientConfig = {
+  providers: [
+    provideEnvironmentInitializer(() => {
+      const requestContext = inject(REQUEST_CONTEXT);
+      console.log('postClientConfig', requestContext);
+    }),
+    { provide: ROUTES, useFactory: () => inject(REQUEST_EXPLORATION) ? [] : routes, multi: true },
+    provideServerRendering(),
+    provideServerRouting([{ path: '**', renderMode: RenderMode.Server }]),
+  ]
 }
 
-export const serverConfig = mergeApplicationConfig(appConfig, {
-  providers: [
-    provideServerRendering(),
-    provideServerRouting([
-      { path: '**', renderMode: RenderMode.Server }
-    ]),
-    // provideAppDestruction(() => {
-    //   console.log('******** Destruction **********');
-    // }),
-    // provideAppInitializer(() => {
-    //   // const req = inject(REQUEST);
-    //   // const context = inject(REQUEST_CONTEXT);
-    //   // console.log('WOLOLO', req, context);
-    //   logInRouteExploration('Server App Initializer');
-    // }),
-    // provideEnvironmentInitializer(() => {
-    //   logInRouteExploration('Server Environment Initializer');
-    // }),
-    providePlatformInitializer(() => {
-      console.log('Server Platform Initializer')
-    }),
-    { provide: PLATFORM_INITIALIZER, multi: true, useFactory: () => {
-        console.log('-----> Server Platform Initializer');
-      }
-    }
-  ]
-});
+export const serverConfig = mergeApplicationConfig(preClientConfig, appConfig, postClientConfig);

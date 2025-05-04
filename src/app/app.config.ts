@@ -1,29 +1,25 @@
 import {
   ApplicationConfig,
-  provideAppInitializer,
-  provideEnvironmentInitializer, providePlatformInitializer,
-  provideZoneChangeDetection
+  inject,
+  provideEnvironmentInitializer,
+  provideZoneChangeDetection,
+  REQUEST_CONTEXT
 } from '@angular/core';
 
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
+import { provideRouter, ROUTES } from '@angular/router';
+import { REQUEST_EXPLORATION } from './request-exploration';
 import { routes } from './routes';
-import { logInRouteExploration } from './route-extraction';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideClientHydration(withEventReplay()),
-    provideRouter(routes),
-    // provideAppInitializer(() => {
-    //
-    //   logInRouteExploration('Client App Initializer');
-    // }),
-    // provideEnvironmentInitializer(() => {
-    //   logInRouteExploration('Client Environment Initializer');
-    // }),
-    providePlatformInitializer(() => {
-      console.log('Client Platform Initializer')
-    })
+    { provide: ROUTES, useFactory: () => inject(REQUEST_EXPLORATION) ? [] : routes, multi: true },
+    provideRouter([]),
+    provideEnvironmentInitializer(() => {
+      const requestContext = inject(REQUEST_CONTEXT);
+      console.log('appConfig', requestContext);
+    }),
   ]
 };
