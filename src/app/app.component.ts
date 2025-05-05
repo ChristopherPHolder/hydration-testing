@@ -1,4 +1,4 @@
-import { Component, inject, input, REQUEST_CONTEXT } from '@angular/core';
+import { Component, inject, input, REQUEST, REQUEST_CONTEXT } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 
@@ -39,6 +39,8 @@ export class ContentComponent {
 export class AppComponent {
 
   context = inject(REQUEST_CONTEXT);
+  request = inject(REQUEST);
+
   readonly contentComponent = ContentComponent;
 
   readonly dynamicComponentInput = {
@@ -48,6 +50,10 @@ export class AppComponent {
   readonly staticComponentInput = {
     title: 'Static Component',
     text: 'This component is rendered with statically in the template. It does not have an ng-version attribute.',
+  }
+
+  constructor() {
+    console.log('AppComponent', this.context, this.request);
   }
 
 }

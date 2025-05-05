@@ -37,16 +37,21 @@ app.use(
   }),
 );
 
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json());
+
 
 /**
  * Handle all other requests by rendering the Angular application.
  */
-app.use('/**', (req, res, next) => {
-  angularApp
-    .handle(req, { context: 1 })
+app.use('/**', async (req, res, next) => {
+  console.log('req', req.body);
+
+  const { socket, url = '', originalUrl, headers } = req;
+  const ngReq = { headers, socket, url, originalUrl, method: 'GET' };
+
+  await angularApp
+    .handle(ngReq as any, req.body)
     .then((response) => {
-      console.log('response', response);
       return response ? writeResponseToNodeResponse(response, res) : next()
     }
     )
