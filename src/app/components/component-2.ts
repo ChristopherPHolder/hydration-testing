@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
 
-console.log('Loaded Component 2');
-
 @Component({
   selector: 'app-component-2',
   standalone: true,

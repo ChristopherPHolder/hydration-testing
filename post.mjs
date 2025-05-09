@@ -1,6 +1,6 @@
 import { fetch } from 'undici';
 
-const response = await fetch('http://localhost:9999/ClientDist/browser', {
+const response = await fetch('http://localhost:4200/', {
   method: 'POST',
   body: JSON.stringify({
     placeholders: 'Christopher',

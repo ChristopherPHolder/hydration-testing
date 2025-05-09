@@ -6,9 +6,9 @@ export const isRouteExploration = () => inject(REQUEST) === null;
 export const logInRouteExploration = (message: string) => {
   if (isRouteExploration()) {
     const p = inject(PLATFORM_ID);
-    console.log('[Route Exploration]:', message);
+    // console.log('[Route Exploration]:', message);
   }
   else {
-    console.log('[SSR Render]', message);
+    // console.log('[SSR Render]', message);
   }
 }

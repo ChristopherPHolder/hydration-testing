@@ -30,16 +30,12 @@ export class ContentComponent {
   selector: 'app-root',
   imports: [NgComponentOutlet, ContentComponent, RouterOutlet],
   template: `
-    {{context}}
     <ng-container *ngComponentOutlet="contentComponent; inputs: dynamicComponentInput;"/>
     <app-content [text]="staticComponentInput.text" [title]="staticComponentInput.title"/>
     <router-outlet />
   `,
 })
 export class AppComponent {
-
-  context = inject(REQUEST_CONTEXT);
-  request = inject(REQUEST);
 
   readonly contentComponent = ContentComponent;
 
@@ -50,10 +46,6 @@ export class AppComponent {
   readonly staticComponentInput = {
     title: 'Static Component',
     text: 'This component is rendered with statically in the template. It does not have an ng-version attribute.',
-  }
-
-  constructor() {
-    console.log('AppComponent', this.context, this.request);
   }
 
 }

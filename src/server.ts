@@ -14,6 +14,9 @@ const browserDistFolder = resolve(serverDistFolder, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+// @ts-ignore
+globalThis['route_exploration'] = true
+
 /**
  * Example Express Rest API endpoints can be defined here.
  * Uncomment and define endpoints as necessary.
@@ -37,22 +40,27 @@ app.use(
   }),
 );
 
-app.use(express.json());
+// app.use(express.json());
 
 
 /**
  * Handle all other requests by rendering the Angular application.
  */
 app.use('/**', async (req, res, next) => {
-  console.log('req', req.body);
-
-  const { socket, url = '', originalUrl, headers } = req;
-  const ngReq = { headers, socket, url, originalUrl, method: 'GET' };
+  console.log('req', req.method, req.url);
+  // const { socket, url = '', originalUrl, headers } = req;
+  // const ngReq = { headers, socket, url, originalUrl, method: 'GET' };
 
   await angularApp
-    .handle(ngReq as any, req.body)
+    .handle(req, { context: true})
     .then((response) => {
-      return response ? writeResponseToNodeResponse(response, res) : next()
+      if (response) {
+        response.headers.set('x-ssr-bypass', '1');
+        writeResponseToNodeResponse(response, res)
+      } else {
+        console.log('Response = ', response);
+        next();
+      }
     }
     )
     .catch(next);

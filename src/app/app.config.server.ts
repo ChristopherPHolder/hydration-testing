@@ -10,7 +10,7 @@ const preClientConfig = {
   providers: [
     provideEnvironmentInitializer(() => {
       const requestContext = inject(REQUEST_CONTEXT);
-      console.log('preClientConfig', requestContext);
+      // console.log('preClientConfig', requestContext);
     }),
   ]
 };
@@ -25,6 +25,18 @@ const postClientConfig = {
     provideServerRendering(),
     provideServerRouting([{ path: '**', renderMode: RenderMode.Server }]),
   ]
+}
+
+let isRouteExplorationPhase = true
+function provideContextAware() {
+  if (isRouteExplorationPhase) {
+    isRouteExplorationPhase = false;
+    return [];
+  }
+  return [provideEnvironmentInitializer(() => {
+    const requestContext = inject(REQUEST_CONTEXT);
+    console.log('postClientConfig', requestContext);
+  })]
 }
 
 export const serverConfig = mergeApplicationConfig(preClientConfig, appConfig, postClientConfig);
